@@ -158,4 +158,21 @@ class DispatcherTest extends TestCase
 
         $this->assertCount(0, $dispatcher->getListeners(TestEvent::class));
     }
+
+    public function test__Given_no_listeners__When_hasListeners__Then_false()
+    {
+        $dispatcher = new Dispatcher();
+
+        $this->assertFalse($dispatcher->hasListeners(TestEvent::class));
+    }
+
+    public function test__Given_listeners__When_hasListeners__Then_true()
+    {
+        $dispatcher = new Dispatcher();
+
+        $dispatcher->listen(TestEvent::class, TestListener::class);
+
+        $this->assertTrue($dispatcher->hasListeners(TestEvent::class));
+    }
+
 }

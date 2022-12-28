@@ -18,24 +18,24 @@ class Dispatcher
      * Register a listener.
      *
      * @param string $event
-     * @param object|string|array $listeners
+     * @param object|string|array $listener
      * @return void
      */
-    public function listen(string $event, object|string|array $listeners): void
+    public function listen(string $event, object|string|array $listener): void
     {
-        if (! is_array($listeners)) {
-            $listeners = [$listeners];
-        }
-
-        foreach ($listeners as $listener) {
-            if ($listener instanceof Closure) {
-                $listener = new ClosureDelegate($listener);
-            } elseif (is_string($listener)) {
-                $listener = new $listener;
+        if ($listener instanceof Closure) {
+            $listener = new ClosureDelegate($listener);
+        } elseif (is_string($listener)) {
+            $listener = new $listener;
+        } elseif (is_array($listener)) {
+            foreach ($listener as $item) {
+                $this->listen($event, $item);
             }
 
-            $this->listeners[$event][] = $listener;
+            return;
         }
+
+        $this->listeners[$event][] = $listener;
     }
 
     /**
@@ -73,6 +73,17 @@ class Dispatcher
         }
 
         return $this->listeners[$event] ?? [];
+    }
+
+    /**
+     * Check if a listener is registered for a specific event
+     *
+     * @param string $event
+     * @return bool
+     */
+    public function hasListeners(string $event): bool
+    {
+        return ! empty($this->getListeners($event));
     }
 
     /**
